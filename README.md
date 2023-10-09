@@ -1,17 +1,81 @@
-# supabase_udemy_app
 
-A new Flutter project.
+# ARCHITECTURE.md
 
-## Getting Started
+# 全体図
 
-This project is a starting point for a Flutter application.
+```mermaid
+flowchart TB
+Riverpod
 
-A few resources to get you started if this is your first Flutter project:
+subgraph Screen
+direction TB
+WeatherScreen((WeatherScreen))
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+end
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
-# supabase_udemy_app
+Screen(Screen)
+ViewModel(ViewModel)
+UseCase(UseCase)
+Repository(Repository)
+Api(Api)
+Screen --> ViewModel
+ViewModel --> Screen
+Repository --> ViewModel
+ViewModel --> Repository
+Repository --> Api
+Api --> Repository
+```
+
+# アーキテクチャ
+
+### Screen
+- 取得した天気情報の表示を行っている。
+- エラーの際は、ダイアログを表示する。
+
+### viewModel
+- screenの表示に関わるStateの管理
+- screenから受け取った操作（ボタンのタップ）Usecaseに対して天気のデータを取得or更新を伝える役割になっている。
+
+### repository
+- apiから取得したデータをアプリが使いやすい形に変換し、Usecaseに渡す役割になっている。
+- 取得結果（成功か失敗か）をViewModelに伝える役割になっている。
+
+### api
+- APIからデータを取得する
+- fetchWeatherで取得したデータ（Weather）をUsecaseに渡してあげる。
+
+
+##  Riverpod の Provider の依存関係図
+
+
+```mermaid
+flowchart TB
+  subgraph Arrows
+    direction LR
+    start1[ ] -..->|read| stop1[ ]
+    style start1 height:0px;
+    style stop1 height:0px;
+    start2[ ] --->|listen| stop2[ ]
+    style start2 height:0px;
+    style stop2 height:0px;
+    start3[ ] ===>|watch| stop3[ ]
+    style start3 height:0px;
+    style stop3 height:0px;
+  end
+  subgraph Type
+    direction TB
+    ConsumerWidget((widget));
+    Provider[[provider]];
+  end
+
+  weatherScreenViewModelProvider[["weatherScreenViewModelProvider"]];
+  weatherRepositoryProvider[["weatherRepositoryProvider"]];
+  weatherDatastoreProvider[["weatherDatastoreProvider"]];
+  WeatherScreen((WeatherScreen));
+
+  weatherScreenViewModelProvider ==> WeatherScreen;
+  weatherDatastoreProvider ==> weatherRepositoryProvider;
+
+```
+
+# ARCHITECTURE.md
